@@ -7,10 +7,7 @@
   <groupId>com.ssacademy.testing</groupId>
   <artifactId>TestingUtility</artifactId>
   <version>1.0-SNAPSHOT</version>
-
   <name>TestingUtility</name>
-  <!-- FIXME change it to the project's website -->
-  <url>http://www.example.com</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,6 +39,8 @@
           <artifactId>maven-clean-plugin</artifactId>
           <version>3.0.0</version>
         </plugin>
+
+
         <!-- see http://maven.apache.org/ref/current/maven-core/default-bindings.html#Plugin_bindings_for_jar_packaging -->
         <plugin>
           <artifactId>maven-resources-plugin</artifactId>

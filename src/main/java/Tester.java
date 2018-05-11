@@ -1,3 +1,4 @@
+import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -101,6 +102,49 @@ public class Tester {
                 results.add(false);
             }
         }
+        return this;
+    }
+
+    public Tester hasField(String typeName, String[] fieldNames) {
+        Class<?> clazz;
+        boolean predicate = false;
+        try {
+            clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (String fieldName : fieldNames) {
+                for (Field field : fields) {
+                    if (fieldName.equals(field.getName())) {
+                        predicate = true;
+                    }
+                }
+                if (predicate) {
+                    results.add(true);
+                } else {
+                    results.add(false);
+                }
+                predicate = false;
+            }
+
+        } catch (ClassNotFoundException e) {
+            results.add(false);
+        }
+        return this;
+    }
+
+    public Tester hasPublicField(String typeName, String[] fieldNames) {
+        return this;
+    }
+
+    public Tester hasProtectedField(String typeName, String[] fieldNames) {
+        return this;
+    }
+
+    public Tester hasPackagePrivateField(String typeName, String[] fieldNames) {
+        return this;
+    }
+
+    public Tester hasPrivateField(String typeName, String[] fieldNames) {
         return this;
     }
 
