@@ -105,7 +105,7 @@ public class Tester {
         return this;
     }
 
-    public Tester hasField(String typeName, String[] fieldNames) {
+    public Tester hasDeclaredField(String typeName, String[] fieldNames) {
         Class<?> clazz;
         boolean predicate = false;
         try {
@@ -132,19 +132,157 @@ public class Tester {
         return this;
     }
 
-    public Tester hasPublicField(String typeName, String[] fieldNames) {
+    public Tester hasDeclaredPublicField(String typeName, String[] fieldNames) {
+        Class<?> clazz;
+        boolean predicate = false;
+        try {
+            clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (String fieldName : fieldNames) {
+                for (Field field : fields) {
+                    if (fieldName.equals(field.getName()) && Modifier.isPublic(field.getModifiers())) {
+                        predicate = true;
+                    }
+                }
+                if (predicate) {
+                    results.add(true);
+                } else {
+                    results.add(false);
+                }
+                predicate = false;
+            }
+
+        } catch (ClassNotFoundException e) {
+            results.add(false);
+        }
         return this;
     }
 
-    public Tester hasProtectedField(String typeName, String[] fieldNames) {
+    public Tester hasDeclaredProtectedField(String typeName, String[] fieldNames) {
+        Class<?> clazz;
+        boolean predicate = false;
+        try {
+            clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (String fieldName : fieldNames) {
+                for (Field field : fields) {
+                    if (fieldName.equals(field.getName()) && Modifier.isProtected(field.getModifiers())) {
+                        predicate = true;
+                    }
+                }
+                if (predicate) {
+                    results.add(true);
+                } else {
+                    results.add(false);
+                }
+                predicate = false;
+            }
+
+        } catch (ClassNotFoundException e) {
+            results.add(false);
+        }
         return this;
     }
 
-    public Tester hasPackagePrivateField(String typeName, String[] fieldNames) {
+    public Tester hasDeclaredPrivateField(String typeName, String[] fieldNames) {
+        Class<?> clazz;
+        boolean predicate = false;
+        try {
+            clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (String fieldName : fieldNames) {
+                for (Field field : fields) {
+                    if (fieldName.equals(field.getName()) && Modifier.isPrivate(field.getModifiers())) {
+                        predicate = true;
+                    }
+                }
+                if (predicate) {
+                    results.add(true);
+                } else {
+                    results.add(false);
+                }
+                predicate = false;
+            }
+
+        } catch (ClassNotFoundException e) {
+            results.add(false);
+        }
         return this;
     }
 
-    public Tester hasPrivateField(String typeName, String[] fieldNames) {
+    public Tester hasDeclaredPackagePrivateField(String typeName, String[] fieldNames) {
+        Class<?> clazz;
+        boolean predicate = false;
+        try {
+            clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+
+            for (String fieldName : fieldNames) {
+                for (Field field : fields) {
+                    if (fieldName.equals(field.getName())
+                            && !Modifier.isPublic(field.getModifiers())
+                            && !Modifier.isProtected(field.getModifiers())
+                            && !Modifier.isPrivate(field.getModifiers())) {
+                        predicate = true;
+                    }
+                }
+                if (predicate) {
+                    results.add(true);
+                } else {
+                    results.add(false);
+                }
+                predicate = false;
+            }
+
+        } catch (ClassNotFoundException e) {
+            results.add(false);
+        }
+        return this;
+    }
+
+    public Tester inheritsField(String parentType, String childType, String[] fieldNames) {
+        Class<?> parentClazz, childClazz;
+        boolean predicate1 = false, predicate2 = true;
+        try {
+            parentClazz = Class.forName(parentType);
+            childClazz = Class.forName(childType);
+
+            Field[] parentFields = parentClazz.getDeclaredFields();
+            Field[] childFields = childClazz.getDeclaredFields();
+
+            for (String fieldName : fieldNames) {
+                for (Field parentField : parentFields) {
+                    if (fieldName.equals(parentField.getName())) {
+
+                        System.out.println(fieldName + " 111");
+
+                        for (Field childField : childFields) {
+                            if (fieldName.equals(childField.getName())) {
+                                predicate2 = false;
+                            }
+                        }
+                        if (predicate2) {
+                            results.add(true);
+                        } else {
+                            results.add(false);
+                        }
+                        predicate1 = true;
+                        predicate2 = true;
+                    } else {
+                        results.add(false);
+
+                        System.out.println(fieldName + " 222");
+
+                    }
+                }
+            }
+
+        } catch (ClassNotFoundException e) {
+            results.add(false);
+        }
         return this;
     }
 
@@ -158,4 +296,5 @@ public class Tester {
         double normalizeResult = (double)result * maxScore / results.size();
         return new BigDecimal(normalizeResult).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
+
 }
