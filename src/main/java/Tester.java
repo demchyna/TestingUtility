@@ -1,578 +1,409 @@
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Tester {
-    private ArrayList<Boolean> results;
-    private int maxScore;
 
-    public Tester(int maxScore) {
-        results = new ArrayList<>();
-        this.maxScore = maxScore;
-    }
-
-    public Tester isInterface(String[] typeNames) {
-        Class<?> clazz;
-        boolean predicate;
-        for(String typeName : typeNames) {
-            try {
-                clazz = Class.forName(typeName);
-                predicate = clazz.isInterface();
-                results.add(predicate);
-            } catch (ClassNotFoundException e) {
-                results.add(false);
-            }
-        }
-        return this;
-    }
-
-    public Tester isAbstractClass(String[] typeNames) {
-        Class<?> clazz;
-        boolean predicate;
-        for (String typeName : typeNames) {
-            try {
-                clazz = Class.forName(typeName);
-                predicate = Modifier.isAbstract(clazz.getModifiers()) && !Modifier.isInterface(clazz.getModifiers());
-                results.add(predicate);
-            } catch (ClassNotFoundException e) {
-                results.add(false);
-            }
-        }
-        return this;
-    }
-
-    public Tester isClass(String[] typeNames) {
-        Class<?> clazz;
-        boolean predicate;
-        for (String typeName : typeNames) {
-            try {
-                clazz = Class.forName(typeName);
-                predicate = !Modifier.isAbstract(clazz.getModifiers()) && !Modifier.isInterface(clazz.getModifiers());
-                results.add(predicate);
-            } catch (ClassNotFoundException e) {
-                results.add(false);
-            }
-        }
-        return this;
-    }
-
-    public Tester isEnum(String[] typeNames) {
-        Class<?> clazz;
-        boolean predicate;
-        for (String typeName : typeNames) {
-            try {
-                clazz = Class.forName(typeName);
-                predicate = clazz.isEnum();
-                results.add(predicate);
-            } catch (ClassNotFoundException e) {
-                results.add(false);
-            }
-        }
-        return this;
-    }
-
-    public Tester extendsClass(String parentName, String[] childNames) {
-        Class<?> childClazz, parentClazz;
-        boolean predicate;
-        for (String childName : childNames) {
-            try {
-                parentClazz = Class.forName(parentName);
-                childClazz = Class.forName(childName);
-                predicate = childClazz.getSuperclass().equals(parentClazz);
-                results.add(predicate);
-            } catch (ClassNotFoundException e) {
-                results.add(false);
-            }
-        }
-        return this;
-    }
-
-    public Tester implementsInterface(String parentName, String[] childNames) {
-        Class<?> childClazz, parentClazz;
-        boolean predicate;
-        for (String childName : childNames) {
-            try {
-                parentClazz = Class.forName(parentName);
-                childClazz = Class.forName(childName);
-                predicate = parentClazz.isAssignableFrom(childClazz) && parentClazz.isInterface();
-                results.add(predicate);
-            } catch (ClassNotFoundException e) {
-                results.add(false);
-            }
-        }
-        return this;
-    }
-
-    public Tester hasDeclaredField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean isInterface(String typeName) {
         try {
-            clazz = Class.forName(typeName);
-            Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
+            Class<?> clazz = Class.forName(typeName);
+            return clazz.isInterface();
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredPublicField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean isAbstractClass(String typeName) {
         try {
-            clazz = Class.forName(typeName);
-            Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName()) && Modifier.isPublic(field.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
+            Class<?> clazz = Class.forName(typeName);
+            return Modifier.isAbstract(clazz.getModifiers()) && !Modifier.isInterface(clazz.getModifiers());
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredProtectedField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean isClass(String typeName) {
         try {
-            clazz = Class.forName(typeName);
-            Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName()) && Modifier.isProtected(field.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
+            Class<?> clazz = Class.forName(typeName);
+            return  !Modifier.isAbstract(clazz.getModifiers()) && !Modifier.isInterface(clazz.getModifiers());
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredPrivateField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean isEnum(String typeName) {
         try {
-            clazz = Class.forName(typeName);
-            Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName()) && Modifier.isPrivate(field.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
+            Class<?> clazz = Class.forName(typeName);
+            return clazz.isEnum();
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredPackagePrivateField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean extendsClass(String parentName, String childName) {
         try {
-            clazz = Class.forName(typeName);
-            Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName())
-                            && !Modifier.isPublic(field.getModifiers())
-                            && !Modifier.isProtected(field.getModifiers())
-                            && !Modifier.isPrivate(field.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
+            Class<?> parentClazz = Class.forName(parentName);
+            Class<?> childClazz = Class.forName(childName);
+            return parentClazz.isAssignableFrom(childClazz) && (isClass(parentName) || isAbstractClass(parentName));
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredStaticField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean implementsInterface(String parentName, String childName) {
         try {
-            clazz = Class.forName(typeName);
-            Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName()) && Modifier.isStatic(field.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
+            Class<?> parentClazz = Class.forName(parentName);
+            Class<?> childClazz = Class.forName(childName);
+            return parentClazz.isAssignableFrom(childClazz) && parentClazz.isInterface();
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredFinalField(String typeName, String[] fieldNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean hasDeclaredField(String typeName, String fieldName) {
         try {
-            clazz = Class.forName(typeName);
+            Class<?> clazz = Class.forName(typeName);
             Field[] fields = clazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                for (Field field : fields) {
-                    if (fieldName.equals(field.getName()) && Modifier.isFinal(field.getModifiers())) {
-                        predicate = true;
-                    }
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName())) {
+                    return true;
                 }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
             }
-
+            return false;
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester inheritsField(String parentType, String childType, String[] fieldNames) {
-        Class<?> parentClazz, childClazz;
+    public static boolean hasDeclaredPublicField(String typeName, String fieldName) {
         try {
-            parentClazz = Class.forName(parentType);
-            childClazz = Class.forName(childType);
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName()) && Modifier.isPublic(field.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 
+    public static boolean hasDeclaredProtectedField(String typeName, String fieldName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName()) && Modifier.isProtected(field.getModifiers())) {
+                       return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredPrivateField(String typeName, String fieldName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName()) && Modifier.isPrivate(field.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredPackagePrivateField(String typeName, String fieldName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName())
+                        && !Modifier.isPublic(field.getModifiers())
+                        && !Modifier.isProtected(field.getModifiers())
+                        && !Modifier.isPrivate(field.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredStaticField(String typeName, String fieldName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName()) && Modifier.isStatic(field.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredFinalField(String typeName, String fieldName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName()) && Modifier.isFinal(field.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean inheritsField(String parentType, String childType, String fieldName) {
+        try {
+            Class<?> parentClazz = Class.forName(parentType);
+            Class<?> childClazz = Class.forName(childType);
             Field[] parentFields = parentClazz.getDeclaredFields();
             Field[] childFields = childClazz.getDeclaredFields();
-
-            for (String fieldName : fieldNames) {
-                if (isFieldInParent(fieldName, parentFields) && isFieldInChild(fieldName, childFields)) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-            }
-
+            return isFieldInClass(fieldName, parentFields)
+                    && !isFieldInClass(fieldName, childFields)
+                    && !hasDeclaredPrivateField(parentType, fieldName);
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean hasDeclaredMethod(String typeName, String methodName) {
         try {
-            clazz = Class.forName(typeName);
+            Class<?> clazz = Class.forName(typeName);
             Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName())) {
-                        predicate = true;
+    public static boolean hasDeclaredPublicMethod(String typeName, String methodName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName()) && Modifier.isPublic(method.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredProtectedMethod(String typeName, String methodName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName()) && Modifier.isProtected(method.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredPrivateMethod(String typeName, String methodName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName()) && Modifier.isPrivate(method.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredPackagePrivateMethod(String typeName, String methodName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName())
+                        && !Modifier.isPublic(method.getModifiers())
+                        && !Modifier.isProtected(method.getModifiers())
+                        && !Modifier.isPrivate(method.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredStaticMethod(String typeName, String methodName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName()) && Modifier.isStatic(method.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasDeclaredFinalMethod(String typeName, String methodName) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                if (methodName.equals(method.getName()) && Modifier.isFinal(method.getModifiers())) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean inheritsMethod(String parentType, String childType, String methodName) {
+        try {
+            Class<?> parentClazz = Class.forName(parentType);
+            Class<?> childClazz = Class.forName(childType);
+            Method[] parentMethods = isMethodInClass(methodName, parentClazz.getDeclaredMethods());
+            Method[] childMethods = isMethodInClass(methodName, childClazz.getDeclaredMethods());
+            if (parentMethods.length == 0) {
+                return false;
+            }
+            for (Method parentMethod : parentMethods) {
+                for (Method childMethod : childMethods) {
+                    if (equalParamTypes(parentMethod.getParameterTypes(), childMethod.getParameterTypes())
+                            || Modifier.isPrivate(parentMethod.getModifiers())) {
+                        return false;
                     }
                 }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
+                if (Modifier.isPrivate(parentMethod.getModifiers())) {
+                    return false;
                 }
-                predicate = false;
             }
-
+            return true;
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredPublicMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean overridesMethod(String parentType, String childType, String methodName) {
         try {
-            clazz = Class.forName(typeName);
-            Method[] methods = clazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName()) && Modifier.isPublic(method.getModifiers())) {
-                        predicate = true;
+            Class<?> parentClazz = Class.forName(parentType);
+            Class<?> childClazz = Class.forName(childType);
+            Method[] parentMethods = isMethodInClass(methodName, parentClazz.getDeclaredMethods());
+            Method[] childMethods = isMethodInClass(methodName, childClazz.getDeclaredMethods());
+            for (Method parentMethod : parentMethods) {
+                for (Method childMethod : childMethods) {
+                    if (equalParamTypes(parentMethod.getParameterTypes(), childMethod.getParameterTypes())
+                            && !Modifier.isPrivate(parentMethod.getModifiers())) {
+                        return true;
                     }
                 }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
             }
-
+            return false;
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public Tester hasDeclaredProtectedMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
+    public static boolean hasFieldType(String typeName, String fieldName, Class<?> fieldType) {
         try {
-            clazz = Class.forName(typeName);
+            Class<?> clazz = Class.forName(typeName);
+            Field[] fields = clazz.getDeclaredFields();
+            for (Field field : fields) {
+                if (fieldName.equals(field.getName()) && field.getType().equals(fieldType)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    public static boolean hasMethodReturnType(String typeName, String methodName, Class<?> returnType) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
             Method[] methods = clazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName()) && Modifier.isProtected(method.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
-        } catch (ClassNotFoundException e) {
-            results.add(false);
-        }
-        return this;
-    }
-
-    public Tester hasDeclaredPrivateMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
-        try {
-            clazz = Class.forName(typeName);
-            Method[] methods = clazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName()) && Modifier.isPrivate(method.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
-        } catch (ClassNotFoundException e) {
-            results.add(false);
-        }
-        return this;
-    }
-
-    public Tester hasDeclaredPackagePrivateMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
-        try {
-            clazz = Class.forName(typeName);
-            Method[] methods = clazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName())
-                            && !Modifier.isPublic(method.getModifiers())
-                            && !Modifier.isProtected(method.getModifiers())
-                            && !Modifier.isPrivate(method.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
-        } catch (ClassNotFoundException e) {
-            results.add(false);
-        }
-        return this;
-    }
-
-    public Tester hasDeclaredStaticMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
-        try {
-            clazz = Class.forName(typeName);
-            Method[] methods = clazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName()) && Modifier.isStatic(method.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
-        } catch (ClassNotFoundException e) {
-            results.add(false);
-        }
-        return this;
-    }
-
-    public Tester hasDeclaredFinalMethod(String typeName, String[] methodNames) {
-        Class<?> clazz;
-        boolean predicate = false;
-        try {
-            clazz = Class.forName(typeName);
-            Method[] methods = clazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                for (Method method : methods) {
-                    if (methodName.equals(method.getName()) && Modifier.isFinal(method.getModifiers())) {
-                        predicate = true;
-                    }
-                }
-                if (predicate) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-                predicate = false;
-            }
-
-        } catch (ClassNotFoundException e) {
-            results.add(false);
-        }
-        return this;
-    }
-
-    public Tester inheritsMethod(String parentType, String childType, String[] methodNames) {
-        Class<?> parentClazz, childClazz;
-        try {
-            parentClazz = Class.forName(parentType);
-            childClazz = Class.forName(childType);
-
-            Method[] parentMethods = parentClazz.getDeclaredMethods();
-            Method[] childMethods = childClazz.getDeclaredMethods();
-
-            for (String methodName : methodNames) {
-                if (isMethodInParent(methodName, parentMethods) && isMethodInChild(methodName, childMethods)) {
-                    results.add(true);
-                } else {
-                    results.add(false);
-                }
-            }
-
-        } catch (ClassNotFoundException e) {
-            results.add(false);
-        }
-        return this;
-    }
-
-    public Tester hasMethodReturnType(String typeName, String methodName, Class<?> returnType) {
-        Class<?> clazz;
-        boolean predicate = false;
-        try {
-            clazz = Class.forName(typeName);
-            Method[] methods = clazz.getDeclaredMethods();
-
             for (Method method : methods) {
                 if (methodName.equals(method.getName()) && method.getReturnType().equals(returnType)) {
-                    predicate = true;
+                    return true;
                 }
             }
-            if (predicate) {
-                results.add(true);
-            } else {
-                results.add(false);
-            }
-
+            return false;
         } catch (ClassNotFoundException e) {
-            results.add(false);
+            return false;
         }
-        return this;
     }
 
-    public double calculate() {
-        int result = 0;
-        for (boolean value : results) {
-            if (value) {
-                result = result + 1;
+    public static boolean hasMethodParameterTypes(String typeName, String methodName, Class<?>[] parameterTypes) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                Class<?>[] types = method.getParameterTypes();
+                if(Arrays.equals(types, parameterTypes)) {
+                    return true;
+                }
             }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
-        double normalizeResult = (double)result * maxScore / results.size();
-        return new BigDecimal(normalizeResult).setScale(2, RoundingMode.HALF_UP).doubleValue();
     }
 
-    private boolean isFieldInParent(String fieldName, Field[] parentFields) {
+    public static boolean hasClassDeclaredConstructor(String typeName, Class<?>[] parameterTypes) {
+        try {
+            Class<?> clazz = Class.forName(typeName);
+            Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+            for (Constructor<?> constructor : constructors) {
+                Class<?>[] types = constructor.getParameterTypes();
+                if(Arrays.equals(types, parameterTypes)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
+
+    private static boolean isFieldInClass(String fieldName, Field[] parentFields) {
         for (Field field : parentFields) {
             if (fieldName.equals(field.getName())) {
                 return true;
@@ -581,30 +412,25 @@ public class Tester {
         return false;
     }
 
-    private boolean isFieldInChild(String fieldName, Field[] childFields) {
-        for (Field field : childFields) {
-            if (fieldName.equals(field.getName())) {
-                return false;
+
+    private static Method[] isMethodInClass(String methodName, Method[] declaredMethods) {
+        List<Method> methods = new LinkedList<>();
+        for (Method method : declaredMethods) {
+            if (methodName.equals(method.getName())) {
+                methods.add(method);
             }
         }
-        return true;
+        return methods.toArray(new Method[0]);
     }
 
-    private boolean isMethodInParent(String methodName, Method[] parentMethods) {
-        for (Method method : parentMethods) {
-            if (methodName.equals(method.getName())) {
-                return true;
+    private static boolean equalParamTypes(Class<?>[] params1, Class<?>[] params2) {
+        if (params1.length == params2.length) {
+            for (int i = 0; i < params1.length; i++) {
+                if (params1[i] != params2[i])
+                    return false;
             }
+            return true;
         }
         return false;
-    }
-
-    private boolean isMethodInChild(String methodName, Method[] childMethods) {
-        for (Method method : childMethods) {
-            if (methodName.equals(method.getName())) {
-                return false;
-            }
-        }
-        return true;
     }
 }
